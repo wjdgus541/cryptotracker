@@ -1,8 +1,11 @@
+import { useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { useQuery } from "react-query";
 import { fetchCoins } from "../api";
+import { useRecoilState } from "recoil";
+import { scrollYValue } from "../atoms";
 import Toggle from "../Toggle";
 
 const Container = styled.div`
@@ -84,6 +87,35 @@ function Coins() {
   //   })();
   // }, []);
 
+  const [YValue, setYValue] = useRecoilState(scrollYValue);
+
+  // scrollY값이 0이상인 경우에만 atom에 저장
+  function handleFollow() {
+    if (window.pageYOffset > 0) {
+      setYValue(window.pageYOffset);
+    }
+  }
+
+  useEffect(() => {
+    function watch() {
+      window.addEventListener("scroll", handleFollow); //스크롤 변경시 YValue에 Y값 저장
+    }
+    watch();
+    // 여러번 addEventListener를 사용할 때에는 꼭 removeEventListener를 해주어야 메모리 낭비가 없다.
+    return () => {
+      window.removeEventListener("scroll", handleFollow);
+    };
+  });
+
+  // 페이지에 돌아왔을 때 scrollY의 값이 있는 경우 뷰포트를 그 위치로 이동시킨다,
+  useEffect(() => {
+    if (YValue > 0) {
+      window.scrollTo({
+        top: YValue,
+      });
+    }
+  }, []);
+
   return (
     <Container>
       <Helmet>
@@ -99,7 +131,6 @@ function Coins() {
         <Loader>Loading...</Loader>
       ) : (
         <CoinsList>
-          {console.log(typeof data?.slice(0, 10))}
           {data?.slice(0, 100).map((coin) => (
             <Coin key={coin.id}>
               <Link

@@ -14,6 +14,9 @@ import Toggle from "../Toggle";
 import Chart from "./Chart";
 import Price from "./Price";
 
+import { useRecoilState } from "recoil";
+import { scrollYValue } from "../atoms";
+
 const TopWrapper = styled.div`
   display: flex;
   justify-content: space-between;
@@ -156,6 +159,8 @@ interface PriceData {
 }
 
 function Coin() {
+  const [YValue, setYValue] = useRecoilState(scrollYValue);
+
   const { coinId } = useParams<RouteParams>(); // useParams : 넘겨받은 파라미터를 얻을 수 있음. 여기에서는 /:coinId로 받은 값.
   const { state } = useLocation<RouteState>(); // useLocation : <Link to={}>로 넘긴 데이터들을 받아온다.
   const priceMatch = useRouteMatch("/:coinId/price"); // useRouteMatch : 사용자가 해당 URL에 있는지를 확인.
